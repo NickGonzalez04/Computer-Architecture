@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 """Main."""
+# Imports everything the CPU to load and run
 
 import sys
 from cpu import *
