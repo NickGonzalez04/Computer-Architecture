@@ -11,6 +11,7 @@ class CPU:
         self.ram = [0] * 8
         """ Reg holding 8 positions """
         self.reg = [0] * 8
+        """ program control """
         self.pc = 0
 
     def load(self):
@@ -24,7 +25,7 @@ class CPU:
             0b10000010, # LDI R0,8
             0b00000000, # R0 is register 0
             0b00001000, # Saving the value of 8
-            0b01000111, # PRN R0
+            0b01000111, # PRN 
             0b00000000, # Printing out R0
             0b00000001, # HLT , Haulting the program
         ]
@@ -63,6 +64,15 @@ class CPU:
             print(" %02X" % self.reg[i], end='')
 
         print()
+    # Helper functions
+    # MAR Memory Address Register 
+    # Contains Address that is being read
+    def ram_read(self, MAR):
+        #
+        return self.ram[MAR]
+    # Memory Data Register 
+    def ram_write(self, MAR, MDR):
+        self.ram[MAR] = MDR
 
     def run(self):
         """Run the CPU."""
@@ -73,19 +83,27 @@ class CPU:
         while running: 
 
             instruction = self.ram[self.pc]
+            operand_a = self.pc + 1 
+            operand_b = self.pc + 2 
             # Saving to register if instruction is LDI
             if instruction == 0b10000010:
-                self.reg[int(str(self.ram[self.pc+1]),2)] = self.ram[self.pc+2]
+                #saving the value to the register
+                # Using the ram_read() helper function
+                value = self.ram_read(self.pc + 1)
+                reg_num = self.ram_read(self.pc + 2)
+                self.reg[int(str(value))] = reg_num
                 self.pc +=3
             
             # Printing out the register if instruction is PRN
             if instruction == 0b01000111:
-                print(f"Printing register - {self.reg[int(str(self.ram[self.pc+1]),2)]}")
+                # Printing out the register and its value
+                # Using the ram_read() helper function
+                reg_value = self.reg[int(str(self.ram_read(self.pc + 1)))]
+                print(f"Printing register - {reg_value}")
                 self.pc += 2
             #HLT
             if instruction == 0b00000001:
                 self.pc = 0
                 print('exit')
                 running = False
-
 
