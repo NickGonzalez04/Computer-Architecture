@@ -2,7 +2,12 @@
 
 import sys
 
-HLT = 0b00000001
+# #Op_codes
+# LDI = 0b10000010
+# PRN = 0b00001000
+# MUL = 0b10100010
+# HLT = 0b00000001
+
 
 class CPU:
     """Main CPU class."""
@@ -10,7 +15,7 @@ class CPU:
     def __init__(self):
         """Construct a new CPU."""
         """ Ram holding 256 bytes of memory """
-        self.ram = [0] * 8
+        self.ram = [0] * 256
         """ Reg holding 8 positions """
         self.reg = [0] * 8
         """ program control """
@@ -49,7 +54,7 @@ class CPU:
                     continue
                 # Define the base with 2 since it is binary
                 val = int(line, 2)
-                # print(val)
+                print(val)
                 self.ram[address] = val
                 address += 1
  
@@ -104,6 +109,10 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        LDI = 0b10000010
+        PRN = 0b01000111
+        MUL = 0b10100010
+        HLT = 0b00000001
         # Running is set equal to True
         running = True
 
@@ -112,30 +121,35 @@ class CPU:
 
             # Defined short hands
             instruction = self.ram[self.pc]
-            operand_a = self.pc + 1 
-            operand_b = self.pc + 2 
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
             # Saving to register if instruction is LDI
-            if instruction == 0b10000010:
+            if instruction == LDI:
                 #saving the value to the register
                 # Using the ram_read() helper function
-                value = self.ram_read(operand_a)
-                reg_num = self.ram_read(operand_b)
-                self.reg[int(str(value))] = reg_num
-                self.pc +=3
+               
+                self.reg[operand_a] = operand_b
+                self.pc += 3
             
             # Printing out the register if instruction is PRN
-            elif instruction == 0b01000111:
+            elif instruction == PRN:
                 # Printing out the register and its value
                 # Using the ram_read() helper function
-                reg_value = self.reg[int(str(self.ram_read(operand_a)))]
+                reg_value = self.reg[operand_a]
                 print(f"Printing register - {reg_value}")
                 self.pc += 2
-            #HLT Haulting the pc 
+
+            elif instruction == MUL:
+                self.alu("MUL", operand_a, operand_b)
+                self.pc +=3 
+
+                  #HLT Haulting the pc 
             elif instruction == HLT:
                 operand_a
                 #Stopping the while Loop
                 running = False
                 print('exit')
+
 
             else:
                 print(f"Not and instruction at {self.pc}")
