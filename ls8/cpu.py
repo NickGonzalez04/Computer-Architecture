@@ -2,6 +2,8 @@
 
 import sys
 
+HLT = 0b00000001
+
 class CPU:
     """Main CPU class."""
 
@@ -27,7 +29,7 @@ class CPU:
             0b00001000, # Saving the value of 8
             0b01000111, # PRN 
             0b00000000, # Printing out R0
-            0b00000001, # HLT , Haulting the program
+            HLT, # HLT , Haulting the program
         ]
 
         # Loops through the program(memory)
@@ -89,8 +91,8 @@ class CPU:
             if instruction == 0b10000010:
                 #saving the value to the register
                 # Using the ram_read() helper function
-                value = self.ram_read(self.pc + 1)
-                reg_num = self.ram_read(self.pc + 2)
+                value = self.ram_read(operand_a)
+                reg_num = self.ram_read(operand_b)
                 self.reg[int(str(value))] = reg_num
                 self.pc +=3
             
@@ -98,11 +100,11 @@ class CPU:
             if instruction == 0b01000111:
                 # Printing out the register and its value
                 # Using the ram_read() helper function
-                reg_value = self.reg[int(str(self.ram_read(self.pc + 1)))]
+                reg_value = self.reg[int(str(self.ram_read(operand_a)))]
                 print(f"Printing register - {reg_value}")
-                self.pc += 2
+                operand_b
             #HLT
-            if instruction == 0b00000001:
+            if instruction == HLT:
                 self.pc = 0
                 print('exit')
                 running = False
