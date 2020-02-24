@@ -97,15 +97,19 @@ class CPU:
                 self.pc +=3
             
             # Printing out the register if instruction is PRN
-            if instruction == 0b01000111:
+            elif instruction == 0b01000111:
                 # Printing out the register and its value
                 # Using the ram_read() helper function
                 reg_value = self.reg[int(str(self.ram_read(operand_a)))]
                 print(f"Printing register - {reg_value}")
-                operand_b
+                self.pc += 2
             #HLT
-            if instruction == HLT:
+            elif instruction == HLT:
                 self.pc = 0
-                print('exit')
                 running = False
+                print('exit')
 
+            else:
+                sys.exit(1)
+
+                
