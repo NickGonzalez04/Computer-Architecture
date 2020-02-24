@@ -3,10 +3,10 @@
 import sys
 
 # #Op_codes
-# LDI = 0b10000010
-# PRN = 0b00001000
-# MUL = 0b10100010
-# HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+MUL = 0b10100010
+HLT = 0b00000001
 
 
 class CPU:
@@ -20,6 +20,11 @@ class CPU:
         self.reg = [0] * 8
         """ program control """
         self.pc = 0
+        self.branchtable = {}
+        self.branchtable[LDI] = self.func_LDI
+        self.branchtable[PRN] = self.func_PRN
+        self.branchtable[MUL] = self.func_MUL
+        self.branchtable[HLT] = self.func_HLT
 
     def load(self):
         """Load a program into memory."""
@@ -109,10 +114,10 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        LDI = 0b10000010
-        PRN = 0b01000111
-        MUL = 0b10100010
-        HLT = 0b00000001
+        # LDI = 0b10000010
+        # PRN = 0b01000111
+        # MUL = 0b10100010
+        # HLT = 0b00000001
         # Running is set equal to True
         running = True
 

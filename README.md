@@ -21,7 +21,7 @@
 - [X] Un-hardcode the machine code
 - [X] Implement the `load()` function to load an `.ls8` file given the filename
       passed in as an argument
-- [ ] Implement a Multiply instruction (run `mult8.ls8`)
+- [X] Implement a Multiply instruction (run `mult8.ls8`)
 
 ### Day 3: Stack
 
