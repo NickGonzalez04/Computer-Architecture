@@ -25,6 +25,7 @@ class CPU:
         self.branchtable[PRN] = self.func_PRN
         self.branchtable[MUL] = self.func_MUL
         self.branchtable[HLT] = self.func_HLT
+        self.running = True 
 
     def load(self):
         """Load a program into memory."""
@@ -112,52 +113,58 @@ class CPU:
     def ram_write(self, MAR, MDR):
         self.ram[MAR] = MDR
 
+    def func_LDI(self):
+        # Saving to register if instruction is LDI
+        # saving the value to the register
+        # Using the ram_read() helper function  
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)     
+        self.reg[operand_a] = operand_b
+        # self.pc += 3
+    def func_PRN(self):
+        # Printing out the register if instruction is PRN
+        # Printing out the register and its value
+         # Using the ram_read() helper function
+        reg_num = self.reg[self.ram_read(self.pc + 1)]
+        print(f"Printing register - {reg_num}")
+        # self.pc += 2
+
+    def func_MUL(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu("MUL", operand_a, operand_b)
+        # self.pc +=3 
+
+    def func_HLT(self):
+        #HLT Haulting the pc 
+        # self.ram_read(self.pc + 1)
+        #Stopping the while Loop
+        self.running = False
+        print('exit')
+
+
     def run(self):
         """Run the CPU."""
-        # LDI = 0b10000010
-        # PRN = 0b01000111
-        # MUL = 0b10100010
-        # HLT = 0b00000001
         # Running is set equal to True
-        running = True
-
         # Loops running 
-        while running: 
-
+        while self.running: 
             # Defined short hands
             instruction = self.ram[self.pc]
-            operand_a = self.ram_read(self.pc + 1)
-            operand_b = self.ram_read(self.pc + 2)
-            # Saving to register if instruction is LDI
-            if instruction == LDI:
-                #saving the value to the register
-                # Using the ram_read() helper function
-               
-                self.reg[operand_a] = operand_b
-                self.pc += 3
+            # operand_a = self.ram_read(self.pc + 1)
+            # operand_b = self.ram_read(self.pc + 2)
+            # Moves the IR over 6 places if it the first 2 digits
+            op_Count = instruction >> 6
+            ir_length = op_Count + 1
+            # print(f"ir_length: {ir_length}")
+        
+            self.branchtable[instruction]()
+
             
-            # Printing out the register if instruction is PRN
-            elif instruction == PRN:
-                # Printing out the register and its value
-                # Using the ram_read() helper function
-                reg_value = self.reg[operand_a]
-                print(f"Printing register - {reg_value}")
-                self.pc += 2
-
-            elif instruction == MUL:
-                self.alu("MUL", operand_a, operand_b)
-                self.pc +=3 
-
-                  #HLT Haulting the pc 
-            elif instruction == HLT:
-                operand_a
-                #Stopping the while Loop
-                running = False
-                print('exit')
-
-
-            else:
+    
+            if instruction == 0 or None:
                 print(f"Not and instruction at {self.pc}")
                 sys.exit(1)
+
+            self.pc += ir_length
 
                 
