@@ -7,7 +7,10 @@ LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
 HLT = 0b00000001
+POP = 0b01000110
+PUSH = 0b01000101
 
+SP = 7 # Register for Stack Pointer
 
 class CPU:
     """Main CPU class."""
@@ -20,11 +23,15 @@ class CPU:
         self.reg = [0] * 8
         """ program control """
         self.pc = 0
+        """ Start the stack pointer at F4 """
+        self.reg[SP] = 0xf4 # F4 of the stack
         self.branchtable = {}
         self.branchtable[LDI] = self.func_LDI
         self.branchtable[PRN] = self.func_PRN
         self.branchtable[MUL] = self.func_MUL
         self.branchtable[HLT] = self.func_HLT
+        self.branchtable[POP] = self.func_POP
+        self.branchtable[PUSH] = self.func_PUSH
         self.running = True 
 
     def load(self):
@@ -141,6 +148,17 @@ class CPU:
         #Stopping the while Loop
         self.running = False
         print('exit')
+    
+    def func_POP(self):
+        # copy value from the address pointed by SP to given reg
+        # increment SP
+        pass
+    
+    def func_PUSH(self):
+        # Decrement SP
+        # Copy the value in given register to the address pointed by the SP
+        pass
+
 
 
     def run(self):
@@ -156,11 +174,10 @@ class CPU:
             op_Count = instruction >> 6
             ir_length = op_Count + 1
             # print(f"ir_length: {ir_length}")
-        
+
             self.branchtable[instruction]()
 
             
-    
             if instruction == 0 or None:
                 print(f"Not and instruction at {self.pc}")
                 sys.exit(1)
