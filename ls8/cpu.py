@@ -151,7 +151,7 @@ class CPU:
     
     def func_POP(self):
         # copy value from the address pointed by SP to given reg
-        # increment SP
+        # increment Stackpointer up
         value = self.ram[self.reg[SP]]
         reg_num = self.ram_read(self.pc +1 )
         self.reg[reg_num] = value 
@@ -161,9 +161,13 @@ class CPU:
     def func_PUSH(self):
         # Decrement SP
         self.reg[SP] -= 1
+        # Stack Pointer goes down
         # Copy the value in given register to the address pointed by the SP
+        # Gets the register number
         reg_num = self.ram_read(self.pc + 1)
+        # Gets the values
         reg_val = self.reg[reg_num]
+
         self.ram[self.reg[SP]] = reg_val
 
 
