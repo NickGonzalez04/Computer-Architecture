@@ -9,8 +9,10 @@ MUL = 0b10100010
 HLT = 0b00000001
 POP = 0b01000110
 PUSH = 0b01000101
-RET = 0b00010001
 CALL = 0b01010000
+RET = 0b00010001
+ADD = 0b10100000
+
 
 SP = 7 # Register for Stack Pointer
 
@@ -36,6 +38,7 @@ class CPU:
         self.branchtable[PUSH] = self.func_PUSH
         self.branchtable[RET] = self.func_RET
         self.branchtable[CALL] = self.func_CALL
+        self.branchtable[ADD] = self.func_ADD
         self.running = True 
 
     def load(self):
@@ -171,24 +174,37 @@ class CPU:
         reg_num = self.ram_read(self.pc + 1)
         # Gets the values
         reg_val = self.reg[reg_num]
-
-        self.ram[self.reg[SP]] = reg_val\
+        self.ram[self.reg[SP]] = reg_val
 
     def func_CALL(self):
-        pass
     # CALL 
-    # allows for us to return where we left off when subroutine is complete
-    # set to address stored in the given register 
-    # Jump to that location in RAM and execute the first instruction in subroutine 
+        # allows for us to return where we left off when subroutine is complete
+        return_address = self.pc +2 
+        # Decrement SP
+        self.reg[SP] -= 1
+        # set to address stored in the given register 
+        self.ram[self.reg[SP]] = return_address
+        # Jump to that location in RAM and execute the first instruction in subroutine 
+        # Set the pc to the value in the register 
+        reg_num = self.ram_read(self.pc + 1)
+        self.pc = self.reg[reg_num]
     # Allows for pc to move forward or backwords from current location
 
     def func_RET(self):
-        pass
     # RET 
-    # Return from subroutine 
-    # Pop the value from the top of the stack and store it in the PC
+    # Return from subroutine
+        # Pop the return address off the stack
+        #store it in the PC
+        self.pc = self.ram[self.reg[SP]]
+        self.reg[SP] += 1
+
+    def func_ADD(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu("ADD", operand_a, operand_b)
 
 
+    
     def run(self):
         """Run the CPU."""
         # Running is set equal to True
@@ -209,7 +225,9 @@ class CPU:
             if instruction == 0 or None:
                 print(f"Not and instruction at {self.pc}")
                 sys.exit(1)
-
-            self.pc += ir_length
+            # If the instruction isnt not CALL or RET it will keep the program control going through the stack
+            if instruction != CALL and instruction != RET:
+                # print(f"int: {instruction}")
+                self.pc += ir_length
 
                 
