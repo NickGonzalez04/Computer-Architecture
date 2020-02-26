@@ -9,6 +9,8 @@ MUL = 0b10100010
 HLT = 0b00000001
 POP = 0b01000110
 PUSH = 0b01000101
+RET = 0b00010001
+CALL = 0b01010000
 
 SP = 7 # Register for Stack Pointer
 
@@ -32,13 +34,15 @@ class CPU:
         self.branchtable[HLT] = self.func_HLT
         self.branchtable[POP] = self.func_POP
         self.branchtable[PUSH] = self.func_PUSH
+        self.branchtable[RET] = self.func_RET
+        self.branchtable[CALL] = self.func_CALL
         self.running = True 
 
     def load(self):
         """Load a program into memory."""
 
         """Check to make sure thr right number of arguments were entered"""
-        if len(sys.argv) !=2:
+        if len(sys.argv) != 2:
             print("Usage: ls8.py --filename")
             sys.exit(1)
 
@@ -168,9 +172,21 @@ class CPU:
         # Gets the values
         reg_val = self.reg[reg_num]
 
-        self.ram[self.reg[SP]] = reg_val
+        self.ram[self.reg[SP]] = reg_val\
 
+    def func_CALL(self):
+        pass
+    # CALL 
+    # allows for us to return where we left off when subroutine is complete
+    # set to address stored in the given register 
+    # Jump to that location in RAM and execute the first instruction in subroutine 
+    # Allows for pc to move forward or backwords from current location
 
+    def func_RET(self):
+        pass
+    # RET 
+    # Return from subroutine 
+    # Pop the value from the top of the stack and store it in the PC
 
 
     def run(self):
