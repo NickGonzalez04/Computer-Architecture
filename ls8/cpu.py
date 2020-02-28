@@ -223,8 +223,10 @@ class CPU:
     def func_ST(self):
         # ST
         # Store value in registerB in the address(this would be self.ram for me ) stored in registerA.
-        # registerA 
-        # registerB
+        register_A = self.ram[self.pc + 1]
+        register_B = self.ram[self.pc + 2]
+        # Value in register_B stored into memory in register_a
+        self.ram[self.register[register_A]] = self.register_B[register_B]
 
 
 
