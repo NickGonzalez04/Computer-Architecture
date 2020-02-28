@@ -13,18 +13,8 @@ CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000
 ST = 0b10000100
- """ 
-`FL` bits: `00000LGE`
-* `L` Less-than: during a `CMP`, set to 1 if registerA is less than registerB,
-zero otherwise.
-* `G` Greater-than: during a `CMP`, set to 1 if registerA is greater than
-registerB, zero otherwise.
-* `E` Equal: during a `CMP`, set to 1 if registerA is equal to registerB, zero
-otherwise.
- """
-FLLT = 0b0000100 # Less_than flag
-FLGT = 0b0000010 # Greater_than flag
-FLET = 0b0000001 # Equal_to flag
+CMP = 0b10100111
+
 
 # Register for Stack Pointer
 SP = 7 
@@ -42,6 +32,20 @@ class CPU:
         self.pc = 0
         """ Start the stack pointer at F4 """
         self.reg[SP] = 0xf4 # F4 of the stack
+        self.FL = 0b00000000
+
+        """ 
+        `FL` bits: `00000LGE`
+        * `L` Less-than: during a `CMP`, set to 1 if registerA is less than registerB,
+        zero otherwise.
+        * `G` Greater-than: during a `CMP`, set to 1 if registerA is greater than
+        registerB, zero otherwise.
+        * `E` Equal: during a `CMP`, set to 1 if registerA is equal to registerB, zero
+        otherwise.
+        """
+        self.FLLT = 0b0000100 # Less_than flag
+        self.FLGT = 0b0000010 # Greater_than flag
+        self.FLET = 0b0000001 # Equal_to flag
        
        
         self.branchtable = {}
@@ -56,6 +60,8 @@ class CPU:
         self.branchtable[ADD] = self.func_ADD
         # Store value in registerB in the (this would be self.ram for me )address stored in registerA.
         self.branchtable[ST] = self.func_ST
+        self.branchtable[CMP] = self.func_CMP
+        
         self.running = True 
 
     def load(self):
@@ -113,6 +119,19 @@ class CPU:
             self.reg[reg_a] -= self.reg[reg_b]
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "CMP":
+            # if reg_b is less than reg_a
+            if self.reg[reg_a] < self.reg[reg_b]:
+                # set FL equal to less than
+                self.FL = self.FLLT
+            # if reg_a is greater_than reg_b
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                # set FL to greater_than
+                self.FL = self.FLGT
+            # if  registers are equal to
+            elif self.reg[reg_a] == self.reg[reg_b]:
+                # FL is set to equal to 
+                self.FL = self.FLET
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -226,8 +245,13 @@ class CPU:
         register_A = self.ram[self.pc + 1]
         register_B = self.ram[self.pc + 2]
         # Value in register_B stored into memory in register_a
-        self.ram[self.register[register_A]] = self.register_B[register_B]
+        self.ram[self.reg[register_A]] = self.reg[register_B]
 
+    def func_CMP(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu("CMP", operand_a, operand_b)
+        self.pc += 3
 
 
     
