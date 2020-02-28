@@ -14,6 +14,9 @@ RET = 0b00010001
 ADD = 0b10100000
 ST = 0b10000100
 CMP = 0b10100111
+JMP = 0b01010100
+JEQ = 0b01010101
+JNE = 0b01010110
 
 
 # Register for Stack Pointer
@@ -32,7 +35,7 @@ class CPU:
         self.pc = 0
         """ Start the stack pointer at F4 """
         self.reg[SP] = 0xf4 # F4 of the stack
-        self.FL = 0b00000000
+        self.FL = 0
 
         """ 
         `FL` bits: `00000LGE`
@@ -46,8 +49,9 @@ class CPU:
         self.FLLT = 0b0000100 # Less_than flag
         self.FLGT = 0b0000010 # Greater_than flag
         self.FLET = 0b0000001 # Equal_to flag
+        self.running = True 
        
-       
+        # BranchTable
         self.branchtable = {}
         self.branchtable[LDI] = self.func_LDI
         self.branchtable[PRN] = self.func_PRN
@@ -61,8 +65,11 @@ class CPU:
         # Store value in registerB in the (this would be self.ram for me )address stored in registerA.
         self.branchtable[ST] = self.func_ST
         self.branchtable[CMP] = self.func_CMP
+
+        self.branchtable[JMP] = self.func_JMP
+        self.branchtable[JEQ] = self.func_JEQ
+        self.branchtable[JNE] = self.func_JNE        
         
-        self.running = True 
 
     def load(self):
         """Load a program into memory."""
@@ -125,11 +132,11 @@ class CPU:
                 # set FL equal to less than
                 self.FL = self.FLLT
             # if reg_a is greater_than reg_b
-            elif self.reg[reg_a] > self.reg[reg_b]:
+            if self.reg[reg_a] > self.reg[reg_b]:
                 # set FL to greater_than
                 self.FL = self.FLGT
             # if  registers are equal to
-            elif self.reg[reg_a] == self.reg[reg_b]:
+            if self.reg[reg_a] == self.reg[reg_b]:
                 # FL is set to equal to 
                 self.FL = self.FLET
         else:
@@ -251,9 +258,28 @@ class CPU:
         operand_a = self.ram_read(self.pc + 1)
         operand_b = self.ram_read(self.pc + 2)
         self.alu("CMP", operand_a, operand_b)
-        self.pc += 3
+        # self.pc += 3
 
+    def func_JMP(self):
+        # Jump to the address stored in the given register.
+        reg_num = self.ram_read(self.pc + 1)
+        # Sets the `PC` to the address stored in the given register.
+        self.pc = self.reg[reg_num]
+    
+    def func_JEQ(self):
+        # If `equal` flag is set (true), jump to the address stored in the given register.
+        reg_num = self.ram_read(self.pc + 1)
+        if self.FL == self.FLET:
+            self.pc = self.reg[reg_num]
+        else:
+            self.pc += 2
 
+    def func_JNE(self):
+        reg_num = self.ram_read(self.pc + 1)
+        if self.FL != self.FLET:
+            self.pc = self.reg[reg_num]
+        else:
+            self.pc += 2
     
     def run(self):
         """Run the CPU."""
@@ -275,7 +301,7 @@ class CPU:
                 print(f"Not and instruction at {self.pc}")
                 sys.exit(1)
             # If the instruction isnt not CALL or RET it will keep the program control going through the stack
-            if instruction != CALL and instruction != RET:
+            if instruction != CALL and instruction != RET and instruction != JMP and instruction != JEQ and instruction != JNE:
                 # print(f"int: {instruction}")
                 self.pc += ir_length
 
