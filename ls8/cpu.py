@@ -12,9 +12,22 @@ PUSH = 0b01000101
 CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000
+ST = 0b10000100
+ """ 
+`FL` bits: `00000LGE`
+* `L` Less-than: during a `CMP`, set to 1 if registerA is less than registerB,
+zero otherwise.
+* `G` Greater-than: during a `CMP`, set to 1 if registerA is greater than
+registerB, zero otherwise.
+* `E` Equal: during a `CMP`, set to 1 if registerA is equal to registerB, zero
+otherwise.
+ """
+FLLT = 0b0000100 # Less_than flag
+FLGT = 0b0000010 # Greater_than flag
+FLET = 0b0000001 # Equal_to flag
 
-
-SP = 7 # Register for Stack Pointer
+# Register for Stack Pointer
+SP = 7 
 
 class CPU:
     """Main CPU class."""
@@ -29,6 +42,8 @@ class CPU:
         self.pc = 0
         """ Start the stack pointer at F4 """
         self.reg[SP] = 0xf4 # F4 of the stack
+       
+       
         self.branchtable = {}
         self.branchtable[LDI] = self.func_LDI
         self.branchtable[PRN] = self.func_PRN
@@ -39,6 +54,8 @@ class CPU:
         self.branchtable[RET] = self.func_RET
         self.branchtable[CALL] = self.func_CALL
         self.branchtable[ADD] = self.func_ADD
+        # Store value in registerB in the (this would be self.ram for me )address stored in registerA.
+        self.branchtable[ST] = self.func_ST
         self.running = True 
 
     def load(self):
@@ -121,7 +138,7 @@ class CPU:
     # MAR Memory Address Register 
     # Contains Address that is being read
     def ram_read(self, MAR):
-        #
+        # Memory Address Register 
         return self.ram[MAR]
     # Memory Data Register 
     def ram_write(self, MAR, MDR):
@@ -203,6 +220,13 @@ class CPU:
         operand_b = self.ram_read(self.pc + 2)
         self.alu("ADD", operand_a, operand_b)
 
+    def func_ST(self):
+        # ST
+        # Store value in registerB in the address(this would be self.ram for me ) stored in registerA.
+        # registerA 
+        # registerB
+
+
 
     
     def run(self):
@@ -218,7 +242,6 @@ class CPU:
             op_Count = instruction >> 6
             ir_length = op_Count + 1
             # print(f"ir_length: {ir_length}")
-
             self.branchtable[instruction]()
 
             
