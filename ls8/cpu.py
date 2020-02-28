@@ -267,16 +267,19 @@ class CPU:
         self.pc = self.reg[reg_num]
     
     def func_JEQ(self):
-        # If `equal` flag is set (true), jump to the address stored in the given register.
         reg_num = self.ram_read(self.pc + 1)
+        # If `equal` flag is set (true)
         if self.FL == self.FLET:
+             # jump to the address stored in the given register.
             self.pc = self.reg[reg_num]
         else:
             self.pc += 2
 
     def func_JNE(self):
         reg_num = self.ram_read(self.pc + 1)
+        # If `E` flag is clear (false, 0)
         if self.FL != self.FLET:
+            # jump to the address stored in the given register.
             self.pc = self.reg[reg_num]
         else:
             self.pc += 2
