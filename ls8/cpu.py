@@ -17,6 +17,7 @@ CMP = 0b10100111
 JMP = 0b01010100
 JEQ = 0b01010101
 JNE = 0b01010110
+PRA = 0b01001000
 
 
 # Register for Stack Pointer
@@ -65,10 +66,10 @@ class CPU:
         # Store value in registerB in the (this would be self.ram for me )address stored in registerA.
         self.branchtable[ST] = self.func_ST
         self.branchtable[CMP] = self.func_CMP
-
         self.branchtable[JMP] = self.func_JMP
         self.branchtable[JEQ] = self.func_JEQ
-        self.branchtable[JNE] = self.func_JNE        
+        self.branchtable[JNE] = self.func_JNE
+        self.branchtable[PRA] = self.func_PRA        
         
 
     def load(self):
@@ -97,16 +98,11 @@ class CPU:
         #
         with open(prog_name) as f:
             for line in f:
-                line = line.split("#")[0]
-                line = line.strip()
-
-                if line == '':
-                    continue
+                line = line.split('\\n')
+                for i in line:
                 # Define the base with 2 since it is binary
-                val = int(line, 2)
-                print(val)
-                self.ram[address] = val
-                address += 1
+                    self.ram[address] = int(i, 2)
+                    address += 1
  
         # sys.exit(0)
 
@@ -135,9 +131,9 @@ class CPU:
             if self.reg[reg_a] > self.reg[reg_b]:
                 # set FL to greater_than
                 self.FL = self.FLGT
-            # if  registers are equal to
+            # if both registers are equal to
             if self.reg[reg_a] == self.reg[reg_b]:
-                # FL is set to equal to 
+                # FL is set to equal_to 
                 self.FL = self.FLET
         else:
             raise Exception("Unsupported ALU operation")
@@ -201,10 +197,10 @@ class CPU:
     
     def func_POP(self):
         # copy value from the address pointed by SP to given reg
-        # increment Stackpointer up
         value = self.ram[self.reg[SP]]
         reg_num = self.ram_read(self.pc +1 )
         self.reg[reg_num] = value 
+        # increment Stackpointer up
         self.reg[SP] += 1 
 
     
@@ -283,6 +279,10 @@ class CPU:
             self.pc = self.reg[reg_num]
         else:
             self.pc += 2
+
+    def func_PRA(self):
+        print(chr((self.reg[self.ram_read(self.pc+1)])))
+        self.pc += 2
     
     def run(self):
         """Run the CPU."""
@@ -303,8 +303,8 @@ class CPU:
             if instruction == 0 or None:
                 print(f"Not and instruction at {self.pc}")
                 sys.exit(1)
-            # If the instruction isnt not CALL or RET it will keep the program control going through the stack
-            if instruction != CALL and instruction != RET and instruction != JMP and instruction != JEQ and instruction != JNE:
+            # If the instruction is not CALL or RET or JMP or JEQ or JNE it will keep the program control going through the stack
+            if instruction != CALL and instruction != RET and instruction != JMP and instruction != JEQ and instruction != JNE and instruction != PRA:
                 # print(f"int: {instruction}")
                 self.pc += ir_length
 
